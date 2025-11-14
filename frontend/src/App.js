@@ -1,0 +1,63 @@
+import React, { useState } from 'react';
+import './App.css';
+import StockForm from './components/StockForm';
+import Results from './components/Results';
+import axios from 'axios';
+
+function App() {
+  const [loading, setLoading] = useState(false);
+  const [results, setResults] = useState(null);
+  const [error, setError] = useState(null);
+
+  const handleAnalyze = async (formData) => {
+    setLoading(true);
+    setError(null);
+    setResults(null);
+
+    try {
+      const response = await axios.post('http://localhost:5001/api/analyze', formData);
+      setResults(response.data);
+    } catch (err) {
+      setError(err.response?.data?.error || 'An error occurred while analyzing the stock');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleReset = () => {
+    setResults(null);
+    setError(null);
+  };
+
+  return (
+    <div className="App">
+      <div className="container">
+        <header className="header">
+          <h1>📈 Stock Trading Strategy Analyzer</h1>
+          <p>Analyze stocks with dynamic buy/sell levels based on historical data</p>
+        </header>
+
+        <StockForm onAnalyze={handleAnalyze} loading={loading} onReset={handleReset} hasResults={!!results} />
+
+        {error && (
+          <div className="error-message">
+            <span>⚠️</span>
+            <p>{error}</p>
+          </div>
+        )}
+
+        {loading && (
+          <div className="loading">
+            <div className="spinner"></div>
+            <p>Analyzing stock data...</p>
+          </div>
+        )}
+
+        {results && !loading && <Results data={results} />}
+      </div>
+    </div>
+  );
+}
+
+export default App;
+

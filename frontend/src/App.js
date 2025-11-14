@@ -15,7 +15,20 @@ function App() {
     setResults(null);
 
     try {
-      const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001';
+      // Use environment variable or construct API URL based on current host
+      let API_URL = process.env.REACT_APP_API_URL;
+      
+      if (!API_URL) {
+        // If accessing from network (not localhost), use the same host for API
+        const hostname = window.location.hostname;
+        if (hostname === 'localhost' || hostname === '127.0.0.1') {
+          API_URL = 'http://localhost:5001';
+        } else {
+          // Mobile/network access - use the same IP as frontend
+          API_URL = `http://${hostname}:5001`;
+        }
+      }
+      
       const response = await axios.post(`${API_URL}/api/analyze`, formData);
       setResults(response.data);
     } catch (err) {

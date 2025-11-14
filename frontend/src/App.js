@@ -15,7 +15,8 @@ function App() {
     setResults(null);
 
     try {
-      const response = await axios.post('http://localhost:5001/api/analyze', formData);
+      const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001';
+      const response = await axios.post(`${API_URL}/api/analyze`, formData);
       setResults(response.data);
     } catch (err) {
       setError(err.response?.data?.error || 'An error occurred while analyzing the stock');
